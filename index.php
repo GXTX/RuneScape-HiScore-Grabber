@@ -158,7 +158,7 @@ class rs{
 			}
 			if($parsed[0] == '-1'){
 				if(isset($parsed[2])){ //exp is set so this is a skill
-					$out .= '<tr><td align="center"><img src="'.$info['image'].'"/></td><td>'.$this->skill_names[$i].'</td><td colspan="3" align="right">Not Ranked</td></tr>';
+					$out .= '<tr><td align="center"><img src="'.$this->image_links[$i].'"/></td><td>'.$this->skill_names[$i].'</td><td colspan="3" align="right">Not Ranked</td></tr>';
 					$i++;
 					continue;
 				}
