@@ -150,35 +150,29 @@ class rs{
 		$i = 0;
 		foreach ($data as $parsed){
 			$parsed = explode("@", $parsed);
+			if($i == 0){
+				$out .= '<table><tr><th></th><th>Skills</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
+			}
+			else if($i == 26){
+				$out .= '</table><table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
+			}
 			if($parsed[0] == '-1'){
 				if(isset($parsed[2])){ //exp is set so this is a skill
-					if($i == 0){
-						$out .= '<table><thead><tr><th></th><th>Skills</th><th>Rank</th><th>Level</th><th>XP</th></tr></thead>';
-					}
 					$out .= '<tr><td align="center"><img src="'.$info['image'].'"/></td><td>'.$this->skill_names[$i].'</td><td colspan="3" align="right">Not Ranked</td></tr>';
 					$i++;
 					continue;
 				}
 				else{ //exp isn't set so this is a minigame
-					if($i == 26){
-						$out .= '</table><table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
-					}
 					$out .= '<tr><td align="center"><img src="'.$this->image_links[$i].'"/></td><td colspan="2">'.$this->skill_names[$i].'</td><td colspan="3" align="right">Not Ranked</td></tr>';
 					$i++;
 					continue;
 				}
 			}
 			if(isset($parsed[2])){ //exp is set so this is a skill
-				if($i == 0){
-					$out .= '<table><tr><th></th><th>Skills</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
-				}
 				$out .= '<tr><td><img src="'.$this->image_links[$i].'"/></td><td>'.$this->skill_names[$i].'</td><td>'.$parsed[0].'</td><td>'.$parsed[1].'</td><td>'.$parsed[2].'</td></tr>';
 			}
 			else{ //exp isn't set so this is a minigame
 				$out .= '<tr><td align="center"><img src="'.$this->image_links[$i].'"/></td><td colspan="2">'.$this->skill_names[$i].'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
-				if($i == 26){
-					$out .= '</table><table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
-				}
 			}
 			$i++;
 		}
