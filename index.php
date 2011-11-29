@@ -57,10 +57,11 @@ class rs{
 		global $db;
 		$query = $db->query("SELECT `player_name` FROM `highscores` WHERE `player_name` ='".$this->username."'");
 		if($query->num_rows != 0){
+			$out = $this->grab_old_info();
 			if(isset($_GET['update']) && $_GET['update'] == "1"){ //should we update the info?
 				$this->update_user($data);
 			}
-			return $this->grab_old_info();
+			return $out;
 		}
 		else{
 			$this->insert_user($data);
