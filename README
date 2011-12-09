@@ -26,6 +26,7 @@
  *  CREATE TABLE IF NOT EXISTS `highscores` (
  *     `player_name` varchar(25) NOT NULL,
  *     `data` text NOT NULL,
- *     `last_updated` int(11) NOT NULL
+ *     `last_updated` int(11) NOT NULL,
+ *     `upass` varchar(20) NOT NULL
  *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
  */
