@@ -2,8 +2,6 @@
 /*  RuneScape HiScore Grabber
  *  ------------------------------------------
  *  Author: wutno (#/g/tv - Rizon)
- *  Last update: 11/29/2012 3:43PM -5GMT (Added "The Crucible" to minigames, seems they've also moved around the minigames a bit as well... fucking idiots.)
- *
  *
  *  GNU License Agreement
  *  ---------------------
@@ -22,21 +20,31 @@
  *
  *  http://www.gnu.org/licenses/gpl.txt
  *
- *
- *
  *  SQL structure (NEEDED):
- *  CREATE TABLE IF NOT EXISTS `highscores` (
+ *  CREATE TABLE IF NOT EXISTS `new` (
  *     `player_name` varchar(25) NOT NULL,
  *     `data` text NOT NULL,
  *     `last_updated` int(11) NOT NULL,
- *     `upass` varchar(20) NOT NULL
+ *     `password` varchar(20) NOT NULL
+ *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+ *  
+ *  CREATE TABLE IF NOT EXISTS `old` (
+ *     `player_name` varchar(25) NOT NULL,
+ *     `data` text NOT NULL,
+ *     `last_updated` int(11) NOT NULL,
+ *     `password` varchar(20) NOT NULL
  *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
  */
-$db = new mysqli("localhost", "", "", "");
+//error_reporting(-1);
 
 class rs{
+	public $version = '';
 	public $username = '';
 	private $skill_names = array('Overall','Attack','Defence','Strength','Constitution','Ranged','Prayer','Magic','Cooking','Woodcutting','Fletching','Fishing','Firemaking','Crafting','Smithing','Mining','Herblore','Agility','Thieving','Slayer','Farming','Runecraft','Hunter','Construction','Summoning','Dungeoneering','Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race');
+	/* not currently used
+	private $minigames_new = array('Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race');
+	private $minigames_old = array();
+	*/
 	private $image_links = array(
 		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAitAP8JHEiwoEGBAhImPDhQACRIni4JYPhPgKeLlyRSFIAJU0SNBRUKsGRJUaVKEwkKuHcP38iSlRylRIivZj0BmzYlciRT5bt3COjh1OlI0syKP4MKePSokySjKuPFM1FiaVNJmkRWlEpVACVKjDRlBQLkR0J79kys8Ao264+3Q86mXTtp0qdIAoQI+RFXgAYNLNY2asQpkwAiRIL0LVGChQt/gwsLKFIkiA8BAQEAOw==',
 		'data:image/gif;base64,R0lGODlhEAAQALMAAEY8L7u5A3huYVpQQ1BGOWRaTYJ4a3d7CXd3dwAAAP///wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAAQ+UMlJZbqp6otQ1hPXfaDokZV5gQpnnCwnwGWCFPRmD3mIIYRe6HAIHIS+YmAVAwCIqFTCmThEKYkl5urjaiIAOw==',
@@ -82,52 +90,58 @@ class rs{
 		'data:image/png;base64,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',
 	);
 
-	public function check_vdb_user($data){
+	public function __construct($version, $username){
+		$this->username = $username;
+		$this->version = $version;
+	}
+
+	public function checkDBUser($data){
 		global $db;
-		$query = $db->query("SELECT `player_name` FROM `highscores` WHERE `player_name` ='".$this->username."'") or die ($db->error);
+		$query = $db->query("SELECT `player_name` FROM `".$this->version."` WHERE `player_name` ='".$this->username."'") or die ($db->error);
 		if($query->num_rows != 0){
-			$out = $this->grab_old_info();
-			if(isset($_GET['update']) && $_GET['update'] == "1"){ //should we update the info?
-				if(empty($out['upass'])){
-					$this->update_user($data);
+			$out = $this->queryDBOld();
+			if(isset($_GET['update']) && $_GET['update'] == "1"){
+				if(empty($out['password'])){
+					$this->updateInfo($data);
 				}
-				else if(isset($_GET['upass']) && $_GET['upass'] == $out['upass']){
-					$this->update_user($data);
+				else if(isset($_GET['password']) && $_GET['password'] == $out['password']){
+					$this->updateInfo($data);
 				}
-				//else{
-					//maybe we should make a notice or something when you get it wrong?
-				//}
 			}
 			return $out;
 		}
 		else{
-			$this->insert_user($data);
+			$this->insertUser($data);
 		}
 	}
-	private function update_user($data){
+	private function updateInfo($data){
 		global $db;
-		$db->query("UPDATE `highscores` SET `data` ='".$data."', `last_updated` ='".time()."' WHERE player_name = '".$this->username."'") or die ($db->error);
+		$db->query("UPDATE `".$this->version."` SET `data` ='".$data."', `last_updated` ='".time()."' WHERE player_name = '".$this->username."'") or die ($db->error);
 	}
 
-	private function insert_user($data){
+	private function insertUser($data){
 		global $db;
-		$db->query("INSERT INTO `highscores` (`player_name` ,`data` ,`last_updated`) VALUES ('".$this->username."', '".$data."', '".time()."')") or die ($db->error);
+		$db->query("INSERT INTO `".$this->version."` (`player_name` ,`data` ,`last_updated`) VALUES ('".$this->username."', '".$data."', '".time()."')") or die ($db->error);
 	}
 
-	private function grab_old_info(){
+	private function queryDBOld(){
 		global $db;
-		$query = $db->query("SELECT * FROM `highscores` WHERE `player_name` ='".$this->username."'") or die ($db->error);
+		$query = $db->query("SELECT * FROM `".$this->version."` WHERE `player_name` ='".$this->username."'") or die ($db->error);
 		return $query->fetch_array(MYSQLI_ASSOC);
 	}
 
-	public function grab_new_info($username){
-		$get_page_info = curl_init("http://services.runescape.com/m=hiscore/index_lite.ws?player=".$username);
+	public function queryHiScores(){
+		if($this->version == "new")
+			$url = "http://services.runescape.com/m=hiscore/index_lite.ws?player=";
+		else
+			$url = "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=";
+		
+		$get_page_info = curl_init($url.$this->username);
 		$options = array(CURLOPT_RETURNTRANSFER => TRUE, CURLOPT_BINARYTRANSFER => TRUE);
 		curl_setopt_array($get_page_info, $options);
 		$page_info = curl_exec($get_page_info);
 		$curl_info = curl_getinfo($get_page_info);
 		if($curl_info['http_code'] == 200){
-			$this->username = $username;
 			curl_close($get_page_info);
 			return $page_info;
 		}
@@ -136,20 +150,21 @@ class rs{
 	private function compare($new, $old){
 		$i = 0;
 		foreach ($new as $new_fe){
-			if($i != 41){ //Holy shit Jagex, stop adding minigames to the highscores..
+			if($i != ($this->version == "new" ? 41 : 38)){ //Holy shit Jagex, stop adding minigames to the highscores..
 				$new_info = explode(",", $new_fe); //[0][1]([2])
 				$old_info = explode(",", $old[$i]); //[0][1]([2])
 
 				//find the differences
 				$diff_0 = $new_info[0] - $old_info[0]; //rank
 				$diff_1 = $new_info[1] - $old_info[1]; //level
-				if(isset($new_info[2])){ $diff_2 = $new_info[2] - $old_info[2]; } //exp, minigames stop at [1]
+				if(isset($new_info[2]))
+					$diff_2 = $new_info[2] - $old_info[2];//exp, minigames stop at [1]
 				//
 
 				//RANK
 				if($diff_0 == 0 && $new_info[0] != '-1'){ $pt1 = number_format($new_info[0]); } //no difference
 				else if($new_info[0] == '-1'){ $pt1 = $new_info[0]; } //isn't ranked
-/* why is this backwards? */else if($diff_0 < 0){ $pt1 = number_format($new_info[0]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_0)).'</font>'; } //up
+				else if($diff_0 < 0){ $pt1 = number_format($new_info[0]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_0)).'</font>'; } //up
 				else if($old_info[0] == '-1' && $new_info[0] != '-1'){ $pt1 = number_format($new_info[0]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_0)).'</font>'; } //wasn't ranked and now is
 				else{ $pt1= number_format($new_info[0]).' <font style="color:red;">&darr; -'.number_format($diff_0).'</font>'; } //down
 				//
@@ -170,8 +185,11 @@ class rs{
 				}
 				//
 
-				if(isset($new_info[2])){ $out[$i] = $pt1.'@'.$pt2.'@'.$pt3; }
-				else{ $out[$i] = $pt1.'@'.$pt2; } //With minigames $new_info[2] isn't set so lets skip that
+				if(isset($new_info[2]))
+					$out[$i] = $pt1.'@'.$pt2.'@'.$pt3;
+				else
+					$out[$i] = $pt1.'@'.$pt2;//With minigames $new_info[2] isn't set so lets skip that
+
 				$i++;
 			}
 		}
@@ -180,8 +198,8 @@ class rs{
 
 	public function ready_out($old, $new){
 		$data = $this->compare($old, $new); //compare the info
-		$skills = array_slice($data, 0, 26, true);
-		$minigames = array_slice($data, 26, 15, true);
+		$skills = array_slice($data, 0, ($this->version == "old" ? 24 : 26), true);
+		$minigames = ($this->version == "old" ? array() : array_slice($data, 26, 15, true));
 		$i = 0;
 
 		/* I hate myself for doing it this way... but I couldn't figure out a way to get the ending </table> */
@@ -217,18 +235,28 @@ class rs{
 	}
 }
 
-if(isset($_GET['user'])){
-	$user = $db->real_escape_string(strtolower($_GET['user']));
-} 
+if(isset($_GET['version'])){
+	if($_GET['version'] == "old" || $_GET['version'] == "new")
+		$version = $_GET['version'];
+	else
+		die("Please set a version.");
+
+}
 else{
-	$db->close();
-	die("Please set a username.");
+	die("Please set a version.");
 }
 
-$rs = new rs();
-$user_info = $rs->grab_new_info($user); //grab hs info from RuneScape
+$db = new mysqli("localhost", "", "", "");
+
+if(isset($_GET['user']))
+	$user = $db->real_escape_string(strtolower($_GET['user']));
+else
+	die("Please set a username.");
+
+$rs = new rs($version,$user);
+$user_info = $rs->queryHiScores(); //grab hs info from RuneScape
 if($user_info){ //returned 200 - valid user
-	$old_info = $rs->check_vdb_user($user_info);
+	$old_info = $rs->checkDBUser($user_info);
 	if(empty($old_info)){ //user isn't in the db so he doesn't have any old info, so lets set that
 		$old_info['player_name'] = $rs->username;
 		$old_info['data'] = $user_info;
@@ -241,7 +269,6 @@ if($user_info){ //returned 200 - valid user
 	$db->close();
 }
 else{ //something with the curl
-	$db->close();
 	die($user." not a valid RuneScape user");
 }
 ?>
@@ -265,6 +292,7 @@ else{ //something with the curl
 			<form name="input" action="<?=$_SERVER['PHP_SELF'];?>" method="get">
 				<input type="hidden" name="user" value="<?=$rs->username;?>" />
 				<input type="hidden" name="update" value="1" />
+				<input type="hidden" name="version" value="<?=$version;?>" />
 				<input type="submit" value="Update Now" />
 			</form>
 		</h5>
