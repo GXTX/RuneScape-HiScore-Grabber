@@ -35,17 +35,34 @@
  *     `password` varchar(20) NOT NULL
  *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
  */
-//error_reporting(-1);
+error_reporting(-1);
+
+if(isset($_GET)){
+	if(isset($_GET['version']) && isset($_GET['user'])){
+		if(preg_replace("/[^a-zA-Z\d ]/", "", $_GET['user']) != $_GET['user'] || strlen($_GET['user']) > 25 || !in_array($_GET['version'], array("old","new"))){
+			die('Something went wrong.');
+		}
+		$db = new mysqli("localhost", "", "", "");
+		$user = strtolower($_GET['user']);
+		$version = $_GET['version'];
+	}
+	else{
+		die('Something went wrong.');
+	}
+}
+else{
+	die('Something went wrong.');
+}
 
 class rs{
 	public $version = '';
 	public $username = '';
-	private $skill_names = array('Overall','Attack','Defence','Strength','Constitution','Ranged','Prayer','Magic','Cooking','Woodcutting','Fletching','Fishing','Firemaking','Crafting','Smithing','Mining','Herblore','Agility','Thieving','Slayer','Farming','Runecraft','Hunter','Construction','Summoning','Dungeoneering','Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race');
-	/* not currently used
-	private $minigames_new = array('Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race');
-	private $minigames_old = array();
-	*/
-	private $image_links = array(
+	private $skillNamesOld = array('Overall','Attack','Defence','Strength','Hitpoints','Ranged','Prayer','Magic','Cooking','Woodcutting','Fletching','Fishing','Firemaking','Crafting','Smithing','Mining','Herblore','Agility','Thieving','Slayer','Farming','Runecraft','Hunter','Construction');
+	private $skillNamesNew = array('Overall','Attack','Defence','Strength','Constitution','Ranged','Prayer','Magic','Cooking','Woodcutting','Fletching','Fishing','Firemaking','Crafting','Smithing','Mining','Herblore','Agility','Thieving','Slayer','Farming','Runecraft','Hunter','Construction','Summoning','Dungeoneering');
+	private $miniNamesOld = array();
+	private $miniNamesNew = array('Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race');
+
+	private $skillImageLinks = array( /* OSRS cuts 2 off of the end of this */
 		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAitAP8JHEiwoEGBAhImPDhQACRIni4JYPhPgKeLlyRSFIAJU0SNBRUKsGRJUaVKEwkKuHcP38iSlRylRIivZj0BmzYlciRT5bt3COjh1OlI0syKP4MKePSokySjKuPFM1FiaVNJmkRWlEpVACVKjDRlBQLkR0J79kys8Ao264+3Q86mXTtp0qdIAoQI+RFXgAYNLNY2asQpkwAiRIL0LVGChQt/gwsLKFIkiA8BAQEAOw==',
 		'data:image/gif;base64,R0lGODlhEAAQALMAAEY8L7u5A3huYVpQQ1BGOWRaTYJ4a3d7CXd3dwAAAP///wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAAQ+UMlJZbqp6otQ1hPXfaDokZV5gQpnnCwnwGWCFPRmD3mIIYRe6HAIHIS+YmAVAwCIqFTCmThEKYkl5urjaiIAOw==',
 		'data:image/gif;base64,R0lGODlhEAAQAKIAAFtbVZCQkHd3dwAAAP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAQABAAAANBSLrcOzBKyAa4IovAR8Xa1n1ABomB94Anl5LmgKqKNUXvekN5zcouGsFSErRGq+KxN7TERJSKU5MSPqZVx1XSSAAAOw==',
@@ -71,8 +88,10 @@ class rs{
 		'data:image/gif;base64,R0lGODlhEAAQAMQAACsbHCgaGyocHS4fIi4gIy8hJC8iJjYuMCodIjAjKCkdIi4iJzEmKjAmKjUoLzotNDonNDUtMzcqNC0oKyMcIwAAABUbEiYrHCAhEyorHxkZGf///wAAAAAAAAAAAAAAACH5BAEAABsALAAAAAAQABAAAAVG4CaOHDmeZFByKko+zwqXLjdvdnzSuayLLF4rCMT9ODwh8uYyxnpNJzLQwiGVQCF1SNsFYMzaF/yooljkcte73a531ysqBAA7',
 		'data:image/gif;base64,R0lGODlhEAAQAIMAAAAAAP///75jINRzLPmMPGIzEd/f38jIyLCwsJmZmX19fWZmZv///wAAAAAAAAAAACH5BAMAAAEALAAAAAAQABAAAARHMMhJq704awm6/2BHjGNnnCiCKINQAEN3zHNiL+0bA/Rh3zmYrPZLLHACIc9XBCZ3PkBRihtYOwlAQJrdHr+eSYcD2pjP5wgAOw==',
 		'data:image/gif;base64,R0lGODlhEQAQAIcAAAAAAP///wMCAw4MDhUTFRoZGiIhImdmZxwbH4B9iU9NVqOhqkxLUN7c5uTi7jg3QHt6guLh6oOCjXx7hZiXo6SjrsHAzKmostXU3+zr9ZuaqNTT5MzL3MvK28zL2wMDBAkJCgwMDUtLUcrK2a2tt8/Q4D0+SVJTYkNET1JUZSwtNp6fqR4fJb/Bzp2hs7u/0eDj7yQmLTw/SmhqcVBVZm1zh0hMWd7i7woLDi8yO6ivwmpueN/m9+Lm8ImSpnyElKWuwYuTo8XM2j1EUUxcdVZgcA8RFJurwrbF24+aq8fS41hpf26AmJurwUNJUUdWaYumyIKbuoulxoulxXqOp1BdbZivy6O51DA+TlVshWiBniUuOE5gdXiTsiMrNHeSsHiTsJKy1Y6sz4upy3iRroypymyDnI+szYqmxpe114ikwnmRrV5xhh8lLHeOp2FziJOtypWuyZixzJ620S82PqO3zZWmuWhudRgfJniavXaWtmiDn2iDnnSRr3OPrEdYaoWiwIqnxYaivo6pxB8kKU9ZY6/A0RkiKklieR4oMUdbbTdFUm+LpVJld4unwhUbIGh9j3ODkBIXGwYJCwgLDQoLCgEAAAMDAwICAgEBAf///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAEALAAAAAARABAAAAjJAAMIHEhwIAAABRMOnHTnAEKFBAFE6oHhocKDlSApySDh4EUnb8xccZAAwCOLAQBUImTHypAqPEgAwEPk4UEVJ9CgyTEgyA02jfRgQThTBgoFaKIsSeKgAZk8Zh4akfHABpUzc9IgcSAEkBlCFg8SKOImTpw6huSEWYRSIIIUf8wIQlPmDJgtbRFU0JACERm6jJ7EQGlgRYcKNcwAGQSFS5ZEYWeU6HAhiIsWTfqA+XIoLAURBwFM6ADaC5pCFgdUCusxgKRKAwMCADs=',
-		'data:image/gif;base64,R0lGODlhEAAQAPcfAPbfAdKqJWZKAM2ZAPLpXKKYDtOhAHdnAKGQGUAzA5CHCPLWNtKoDIBhAGdsAIlaAIp7Euzoyp57AEULAJuPIIZhANzCAqitr+3pyxgSAGNQAHMdAKiCAwsKCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAB8ALAAAAAAQABAAAAifAD8IHEiwoMF/CP91MDiwQwcAHDJgiODQYAcOEBMK0MBhYUMOBTRkuPAPg0kMHQf+06DBIckLGzag9Phh5cIOF0ZOwJABAAGPNj90yDAyJwSfQFN2qCCAKAcLFjYEWPgvpVANDxpICBAzwL+aTz06dLggJoevHRyEJdiBgVmxCihYoNnBQEyaQjmEdZhgwAa8AjscQKCX5QDAKhMixBsQADs=',
-		/* minigame images */
+		'data:image/gif;base64,R0lGODlhEAAQAPcfAPbfAdKqJWZKAM2ZAPLpXKKYDtOhAHdnAKGQGUAzA5CHCPLWNtKoDIBhAGdsAIlaAIp7Euzoyp57AEULAJuPIIZhANzCAqitr+3pyxgSAGNQAHMdAKiCAwsKCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAB8ALAAAAAAQABAAAAifAD8IHEiwoMF/CP91MDiwQwcAHDJgiODQYAcOEBMK0MBhYUMOBTRkuPAPg0kMHQf+06DBIckLGzag9Phh5cIOF0ZOwJABAAGPNj90yDAyJwSfQFN2qCCAKAcLFjYEWPgvpVANDxpICBAzwL+aTz06dLggJoevHRyEJdiBgVmxCihYoNnBQEyaQjmEdZhgwAa8AjscQKCX5QDAKhMixBsQADs='
+	);
+
+	private $miniImagesLinksNew = array(
 		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAjAAP8JHEiwoMF/AAAgVHhQIAA5awBICcPwIAAzY9KooWgRQBkzZtSIEYMkIUEAcVJWMaOkTBwuT5owBADHi0ozPMpAyZJlyRKFAKKAgdIlDpsTVrI02XJEpkMqX9S4mdMPSxYwXJjMrDLFyhcnPHrtOJOGzJsuCcFMQdMjn75++uDVsJGjzZOEU6a8McJvESh4+z7lSOIT75uEdQQBSATAEKCEWhIeRsgH0SBFgQ49XohwIIBBCRtXrOiwEFBCpAMCADs=',
 		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAi7AP8JHEiwoMF/AAAgVHhQIAAaEABgWMDw4MMUGBgoqEgwoQEaNCRAgIAhYUcMKCPQkGEAg4UHHhgCqFAhJQ0eBjKMGAEChEIAFzJkqBnjRIIRHkCoiOlwwgQJJGD0QzHCgYUQMiNQSDAhAo9eO0ZgaCCiQsIMFEQMyKevnz54NWwYWJqQQloC/BaBgrfvU44HPet+SHhAEIBEAAzNS+gTgIifBRANUhTo0OKFCAcCGJQwcUWOCAv9JMQxIAA7',
 		'data:image/gif;base64,R0lGODlhEwATAMZ6AAEBAQIBAQMCAQUCAgUDAgUDAwYDAgYEAgYFBQkGBQgHBgkHBAoHBQoICAsIBgwIBgoJCgoKCgwKCg0LCg8LCA4MDA8MCw0NDQ4NDxENChENCw8ODRAODREODQ8PEBQODBMPChMPDhUPCxIQEhUQDBQRDxURERMSExUSExYSEhYTERYTExcTEhcTExgTExkTExYUFRcUFBgUExYVFRYVFhkVExkVFBYWFxcWFhcWFxcWGBgWFhkWFxsWFBsWFRsWFhsXFBwXFh0XFB4YFR4YFhsZGR4ZFx8ZFxsaGx4aFx4aGB4bHSAbGB0cHCAcGiMcGyAdHSEdHCEeHyMeGyAfISQfHCQfHiMgHycgHSQhICMhJCUhISYhISchIiQiISUiIiQiJSUiJSkiHyUjJSkjIiwkICgmKC8mHCgnJy0mJCgnKSwoKC0sLTUrIi4sLTMsKDAtLTQvLDMxMDkwLDg0MTU1Nzk4OTs5Nz48PUA8Pf///////////////////////yH5BAEKAH8ALAAAAAATABMAAAfFgH+Cg4Iyf1CEiYp/Nn9fi5ByDH9wH5CJcUUUf2tdIpeCdGgHg24mIJd3TQSJbDwPi3YVBotmSwiJeBsDan9pT2Vvc395YzoFhHUTvScuL0xiUyx/aloAhGoTJSgnNC5HWD4sP2BU14M5ERIQETctRFMpDT9hFwGEQB4YCX8nMUFGLPwZIUHAIg5/vMzY4cNHBy5/FIDKggRHDxU/NID640TKAhg1QpBZkQFUFBhnkgwR0maLA1BKiiSyQmLjlURVNuoUFAgAOw%3D%3D',
@@ -90,6 +109,8 @@ class rs{
 		'data:image/png;base64,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',
 	);
 
+	private $miniImagesLinksOld = array();
+
 	public function __construct($version, $username){
 		$this->username = $username;
 		$this->version = $version;
@@ -97,16 +118,11 @@ class rs{
 
 	public function checkDBUser($data){
 		global $db;
-		$query = $db->query("SELECT `player_name` FROM `".$this->version."` WHERE `player_name` ='".$this->username."'") or die ($db->error);
+		$query = $db->query("SELECT * FROM `".$this->version."` WHERE `player_name` ='".$this->username."'") or die ($db->error);
 		if($query->num_rows != 0){
 			$out = $this->queryDBOld();
 			if(isset($_GET['update']) && $_GET['update'] == "1"){
-				if(empty($out['password'])){
-					$this->updateInfo($data);
-				}
-				else if(isset($_GET['password']) && $_GET['password'] == $out['password']){
-					$this->updateInfo($data);
-				}
+				$this->updateInfo($data);
 			}
 			return $out;
 		}
@@ -114,14 +130,14 @@ class rs{
 			$this->insertUser($data);
 		}
 	}
-	private function updateInfo($data){
+	private function updateInfo($data,$day7=null,$day30=null){
 		global $db;
 		$db->query("UPDATE `".$this->version."` SET `data` ='".$data."', `last_updated` ='".time()."' WHERE player_name = '".$this->username."'") or die ($db->error);
 	}
 
 	private function insertUser($data){
 		global $db;
-		$db->query("INSERT INTO `".$this->version."` (`player_name` ,`data` ,`last_updated`) VALUES ('".$this->username."', '".$data."', '".time()."')") or die ($db->error);
+		$db->query("INSERT INTO `".$this->version."` (`player_name` ,`data` ,`last_updated`, `7day`, `30day`) VALUES ('".$this->username."', '".$data."', '".time()."', '".$data."', '".$data."')") or die ($db->error);
 	}
 
 	private function queryDBOld(){
@@ -131,12 +147,7 @@ class rs{
 	}
 
 	public function queryHiScores(){
-		if($this->version == "new")
-			$url = "http://services.runescape.com/m=hiscore/index_lite.ws?player=";
-		else
-			$url = "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=";
-		
-		$get_page_info = curl_init($url.$this->username);
+		$get_page_info = curl_init('http://services.runescape.com/m=hiscore'.($this->version == "old" ? '_oldschool' : '').'/index_lite.ws?player='.$this->username);
 		$options = array(CURLOPT_RETURNTRANSFER => TRUE, CURLOPT_BINARYTRANSFER => TRUE);
 		curl_setopt_array($get_page_info, $options);
 		$page_info = curl_exec($get_page_info);
@@ -147,111 +158,88 @@ class rs{
 		}
 	}
 
-	private function compare($new, $old){
-		$i = 0;
-		foreach ($new as $new_fe){
-			if($i != ($this->version == "new" ? 41 : 38)){ //Holy shit Jagex, stop adding minigames to the highscores..
-				$new_info = explode(",", $new_fe); //[0][1]([2])
-				$old_info = explode(",", $old[$i]); //[0][1]([2])
-
-				//find the differences
-				$diff_0 = $new_info[0] - $old_info[0]; //rank
-				$diff_1 = $new_info[1] - $old_info[1]; //level
-				if(isset($new_info[2]))
-					$diff_2 = $new_info[2] - $old_info[2];//exp, minigames stop at [1]
-				//
-
-				//RANK
-				if($diff_0 == 0 && $new_info[0] != '-1'){ $pt1 = number_format($new_info[0]); } //no difference
-				else if($new_info[0] == '-1'){ $pt1 = $new_info[0]; } //isn't ranked
-				else if($diff_0 < 0){ $pt1 = number_format($new_info[0]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_0)).'</font>'; } //up
-				else if($old_info[0] == '-1' && $new_info[0] != '-1'){ $pt1 = number_format($new_info[0]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_0)).'</font>'; } //wasn't ranked and now is
-				else{ $pt1= number_format($new_info[0]).' <font style="color:red;">&darr; -'.number_format($diff_0).'</font>'; } //down
-				//
-
-				//LEVEL
-				if($diff_1 == 0 && $new_info[1] != '-1'){ $pt2 = number_format($new_info[1]); }
-				else if($new_info[1] == '-1'){ $pt2 = $new_info[1]; }
-				else if($diff_1 > 0){ $pt2 = number_format($new_info[1]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_1)).'</font>'; }
-				else{ $pt2= number_format($new_info[1]).' <font style="color:red;">&darr; -'.number_format($diff_1).'</font>'; }
-				//
-
-				//EXP - With minigames $new_info[2] isn't set so lets skip that
-				if(isset($new_info[2])){
-					if($diff_2 == 0 && $new_info[2] != '-1'){ $pt3 = number_format($new_info[2]); }
-					else if($new_info[2] == '-1'){ $pt3 = $new_info[2]; }
-					else if($diff_2 > 0){ $pt3 = number_format($new_info[2]).' <font style="color:green;">&uarr; +'.number_format(abs($diff_2)).'</font>'; }
-					else{ $pt3= number_format($new_info[0]).' <font style="color:red;">&darr; -'.number_format($diff_2).'</font>'; }
-				}
-				//
-
-				if(isset($new_info[2]))
-					$out[$i] = $pt1.'@'.$pt2.'@'.$pt3;
-				else
-					$out[$i] = $pt1.'@'.$pt2;//With minigames $new_info[2] isn't set so lets skip that
-
-				$i++;
-			}
+	private function isNegitive ($number){
+		if(str_replace('-','',$number) != $number){
+			return true;
 		}
-		return $out;
 	}
 
-	public function ready_out($old, $new){
+	private function compare($new, $old){
+		$i = 0;
+		foreach($new as $parsedNew){
+			if($i != ($this->version == "new" ? 41 : 38)){
+				$eParsedNew = explode(",", $parsedNew); //[0][1]([2])
+				$eParsedOld = explode(",", $old[$i]); //[0][1]([2])
+
+				$j = 0;
+				foreach($eParsedNew as $checkDiffernce){
+					$difference[$i][] = $checkDiffernce - $eParsedOld[$j];
+					$j++;
+				}
+
+				$j = 0;
+				foreach($eParsedNew as $checkDiffernce){
+					$preFormatDifference = $difference[$i][$j];
+					if($checkDiffernce == '-1'){//isn't ranked
+						$formatDifference[$i][] = $checkDiffernce;
+					}
+					else if($preFormatDifference == 0){//no difference
+						$formatDifference[$i][] = $checkDiffernce;
+					}
+					else if(!$this->isNegitive($preFormatDifference)){//up
+						if($j == 0)
+							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">&uarr; -'.number_format(abs($preFormatDifference)).'</font>';
+						else
+							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&uarr; +'.number_format(abs($preFormatDifference)).'</font>';
+					}
+					else if($this->isNegitive($preFormatDifference)){//down
+						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&darr; +'.number_format(abs($preFormatDifference)).'</font>';
+					}
+					$j++;
+				}
+			}
+			$i++;
+		}
+		return $formatDifference;
+	}
+
+	public function readyOut($old, $new){
 		$data = $this->compare($old, $new); //compare the info
 		$skills = array_slice($data, 0, ($this->version == "old" ? 24 : 26), true);
 		$minigames = ($this->version == "old" ? array() : array_slice($data, 26, 15, true));
 		$i = 0;
+		$j = 0;
 
 		/* I hate myself for doing it this way... but I couldn't figure out a way to get the ending </table> */
 
 		$out = '<table><tr><th></th><th>Skills</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
 
 		foreach($skills as $parsed){
-			$parsed = explode("@", $parsed);
 			if($parsed[0] == '-1'){ //isn't ranked in the skill
-				$out .= '<tr><td align="center"><img src="'.$this->image_links[$i].'"/></td><td>'.$this->skill_names[$i].'</td><td colspan="3" align="right">Not Ranked</td></tr>';
+				$out .= '<tr><td align="center"><img src="'.$this->skillImageLinks[$i].'"/></td><td>'.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
 				$i++;
 				continue;
 			}
-			$out .= '<tr><td><img src="'.$this->image_links[$i].'"/></td><td>'.$this->skill_names[$i].'</td><td>'.$parsed[0].'</td><td>'.$parsed[1].'</td><td>'.$parsed[2].'</td></tr>';
+			$out .= '<tr><td><img src="'.$this->skillImageLinks[$i].'"/></td><td>'.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</td><td>'.$parsed[0].'</td><td>'.$parsed[1].'</td><td>'.$parsed[2].'</td></tr>';
 			$i++;
 		}
 
 		$out .= '</table><hr align="left" style="width: 20%;"/><table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
 
 		foreach ($minigames as $parsed){
-			$parsed = explode("@", $parsed);
 			if($parsed[0] == '-1'){ //isn't ranked in the skill
-				$out .= '<tr><td align="center"><img src="'.$this->image_links[$i].'"/></td><td colspan="2">'.$this->skill_names[$i].'</td><td colspan="3" align="right">Not Ranked</td></tr>';
-				$i++;
+				$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$j] : $this->miniImagesLinksNew[$j]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$j] : $this->miniNamesNew[$j]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
+				$j++;
 				continue;
 			}
-			$out .= '<tr><td align="center"><img src="'.$this->image_links[$i].'"/></td><td colspan="2">'.$this->skill_names[$i].'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
-			$i++;
+			$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$j] : $this->miniImagesLinksNew[$j]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$j] : $this->miniNamesNew[$j]).'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
+			$j++;
 		}
 
 		$out .= '</table>';
 		return $out;
 	}
 }
-
-if(isset($_GET['version'])){
-	if($_GET['version'] == "old" || $_GET['version'] == "new")
-		$version = $_GET['version'];
-	else
-		die("Please set a version.");
-
-}
-else{
-	die("Please set a version.");
-}
-
-$db = new mysqli("localhost", "", "", "");
-
-if(isset($_GET['user']))
-	$user = $db->real_escape_string(strtolower($_GET['user']));
-else
-	die("Please set a username.");
 
 $rs = new rs($version,$user);
 $user_info = $rs->queryHiScores(); //grab hs info from RuneScape
@@ -265,7 +253,7 @@ if($user_info){ //returned 200 - valid user
 	//explode old and new and compare
 	$user_info = explode ("\n", $user_info);
 	$old_data = explode ("\n", $old_info['data']);
-	$output = $rs->ready_out($user_info, $old_data);
+	$output = $rs->readyOut($user_info, $old_data);
 	$db->close();
 }
 else{ //something with the curl
@@ -274,28 +262,28 @@ else{ //something with the curl
 ?>
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>RSHiScores - #<?=ucfirst($rs->username);?></title>
-        <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noodp" /> <!-- I fucking hate robots... -->
-        <meta name="description" content="RuneScape HiScore Grabber" />
-        <meta charset="UTF-8" />
-        <style type="text/css">
-            html { background-color: #000;color: #777;font-family: sans-serif; font-size: 1.1em;padding: 1em 2em; }
-            div { float: right;text-align: right; }
+	<head>
+		<title>RSHiScores - #<?=ucfirst($rs->username);?></title>
+		<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noodp" /> <!-- I fucking hate robots... -->
+		<meta name="description" content="RuneScape HiScore Grabber" />
+		<meta charset="UTF-8" />
+		<style type="text/css">
+			html { background-color: #000;color: #777;font-family: sans-serif; font-size: 1.1em;padding: 1em 2em; }
+			div { float: right;text-align: right; }
 			font{ font-weight:bold; }
-        </style>
-    </head>
-    <body>
+		</style>
+	</head>
+	<body>
 		<h1><?=ucfirst($rs->username);?></h1>
 		<h5>
 			Since: <?=date("j-F-Y g:i:s A", $old_info['last_updated']);?>
 			<form name="input" action="<?=$_SERVER['PHP_SELF'];?>" method="get">
 				<input type="hidden" name="user" value="<?=$rs->username;?>" />
-				<input type="hidden" name="update" value="1" />
 				<input type="hidden" name="version" value="<?=$version;?>" />
+				<input type="hidden" name="update" value="1" />
 				<input type="submit" value="Update Now" />
 			</form>
 		</h5>
 		<?=$output;?>
-    </body>
+	</body>
 </html>
