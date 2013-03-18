@@ -170,16 +170,10 @@ class rs{
 		}
 	}
 
-	private function isNegitive ($number){
-		if(str_replace('-','',$number) != $number){
-			return true;
-		}
-	}
-
 	private function compare($new, $old){
 		$i = 0;
 		foreach($new as $parsedNew){
-			if($i != ($this->version == "new" ? 41 : 38)){
+			if($i != ($this->version == "new" ? 41 : 38)){ //cut off straglers
 				$eParsedNew = explode(",", $parsedNew); //[0][1]([2])
 				$eParsedOld = explode(",", $old[$i]); //[0][1]([2])
 				$j = 0;
@@ -192,13 +186,13 @@ class rs{
 					else if($difference == 0){//no difference
 						$formatDifference[$i][] = number_format(abs($checkDiffernce));
 					}
-					else if(!$this->isNegitive($difference)){//up
+					else if($difference > 0){//up
 						if($j == 0)
 							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">&uarr; -'.number_format(abs($difference)).'</font>';
 						else
 							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&uarr; +'.number_format(abs($difference)).'</font>';
 					}
-					else if($this->isNegitive($difference)){//down
+					else if($difference < 0){//down
 						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&darr; +'.number_format(abs($difference)).'</font>';
 					}
 					$j++;
