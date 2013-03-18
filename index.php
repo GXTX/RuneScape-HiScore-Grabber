@@ -122,7 +122,19 @@ class rs{
 		if($query->num_rows != 0){
 			$out = $this->queryDBOld();
 			if(isset($_GET['update']) && $_GET['update'] == "1"){
-				$this->updateInfo($data);
+				$info = $query->fetch_array();
+				/*if(($info['last_updated']+60*60*24*7) > time()){
+					//update 7day info
+				}
+				if(($info['last_updated']+60*60*24*30) > time()){
+					//update 30day info
+				}*/
+				//if(empty($out['password'])){
+					$this->updateInfo($data);
+				//}
+				//else if(isset($_GET['password']) && $_GET['password'] == $out['password']){
+				//	$this->updateInfo($data);
+				//}
 			}
 			return $out;
 		}
@@ -170,39 +182,35 @@ class rs{
 			if($i != ($this->version == "new" ? 41 : 38)){
 				$eParsedNew = explode(",", $parsedNew); //[0][1]([2])
 				$eParsedOld = explode(",", $old[$i]); //[0][1]([2])
-
 				$j = 0;
-				foreach($eParsedNew as $checkDiffernce){
-					$difference[$i][] = $checkDiffernce - $eParsedOld[$j];
-					$j++;
-				}
 
-				$j = 0;
 				foreach($eParsedNew as $checkDiffernce){
-					$preFormatDifference = $difference[$i][$j];
+					$difference = $checkDiffernce - $eParsedOld[$j];
 					if($checkDiffernce == '-1'){//isn't ranked
 						$formatDifference[$i][] = $checkDiffernce;
 					}
-					else if($preFormatDifference == 0){//no difference
-						$formatDifference[$i][] = $checkDiffernce;
+					else if($difference == 0){//no difference
+						$formatDifference[$i][] = number_format(abs($checkDiffernce));
 					}
-					else if(!$this->isNegitive($preFormatDifference)){//up
+					else if(!$this->isNegitive($difference)){//up
 						if($j == 0)
-							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">&uarr; -'.number_format(abs($preFormatDifference)).'</font>';
+							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">&uarr; -'.number_format(abs($difference)).'</font>';
 						else
-							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&uarr; +'.number_format(abs($preFormatDifference)).'</font>';
+							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&uarr; +'.number_format(abs($difference)).'</font>';
 					}
-					else if($this->isNegitive($preFormatDifference)){//down
-						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&darr; +'.number_format(abs($preFormatDifference)).'</font>';
+					else if($this->isNegitive($difference)){//down
+						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&darr; +'.number_format(abs($difference)).'</font>';
 					}
 					$j++;
 				}
+
 			}
 			$i++;
 		}
 		return $formatDifference;
 	}
 
+	/* TODO: Redo this whole function, so fucking ugly */
 	public function readyOut($old, $new){
 		$data = $this->compare($old, $new); //compare the info
 		$skills = array_slice($data, 0, ($this->version == "old" ? 24 : 26), true);
@@ -225,7 +233,7 @@ class rs{
 		}
 
 		$out .= '</table><hr align="left" style="width: 20%;"/><table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
-
+		
 		foreach ($minigames as $parsed){
 			if($parsed[0] == '-1'){ //isn't ranked in the skill
 				$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$j] : $this->miniImagesLinksNew[$j]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$j] : $this->miniNamesNew[$j]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
@@ -235,7 +243,7 @@ class rs{
 			$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$j] : $this->miniImagesLinksNew[$j]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$j] : $this->miniNamesNew[$j]).'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
 			$j++;
 		}
-
+		
 		$out .= '</table>';
 		return $out;
 	}
