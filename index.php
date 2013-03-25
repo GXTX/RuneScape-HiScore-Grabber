@@ -25,14 +25,16 @@
  *     `player_name` varchar(25) NOT NULL,
  *     `data` text NOT NULL,
  *     `last_updated` int(11) NOT NULL,
- *     `password` varchar(20) NOT NULL
+ *     `7day` text NOT NULL,
+ *     `30day` text NOT NULL,
  *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
- *  
+ *
  *  CREATE TABLE IF NOT EXISTS `old` (
  *     `player_name` varchar(25) NOT NULL,
  *     `data` text NOT NULL,
  *     `last_updated` int(11) NOT NULL,
- *     `password` varchar(20) NOT NULL
+ *     `7day` text NOT NULL,
+ *     `30day` text NOT NULL,
  *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
  */
 error_reporting(-1);
@@ -62,7 +64,7 @@ class rs{
 	private $miniNamesOld = array();
 	private $miniNamesNew = array('Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race');
 
-	private $skillImageLinks = array( /* OSRS cuts 2 off of the end of this */
+	private $skillImageLinks = array( /* doesn't need 2 variables because skill array doesn't change, but OSRS cuts 2 off of the end of this */
 		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAitAP8JHEiwoEGBAhImPDhQACRIni4JYPhPgKeLlyRSFIAJU0SNBRUKsGRJUaVKEwkKuHcP38iSlRylRIivZj0BmzYlciRT5bt3COjh1OlI0syKP4MKePSokySjKuPFM1FiaVNJmkRWlEpVACVKjDRlBQLkR0J79kys8Ao264+3Q86mXTtp0qdIAoQI+RFXgAYNLNY2asQpkwAiRIL0LVGChQt/gwsLKFIkiA8BAQEAOw==',
 		'data:image/gif;base64,R0lGODlhEAAQALMAAEY8L7u5A3huYVpQQ1BGOWRaTYJ4a3d7CXd3dwAAAP///wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAAQ+UMlJZbqp6otQ1hPXfaDokZV5gQpnnCwnwGWCFPRmD3mIIYRe6HAIHIS+YmAVAwCIqFTCmThEKYkl5urjaiIAOw==',
 		'data:image/gif;base64,R0lGODlhEAAQAKIAAFtbVZCQkHd3dwAAAP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAQABAAAANBSLrcOzBKyAa4IovAR8Xa1n1ABomB94Anl5LmgKqKNUXvekN5zcouGsFSErRGq+KxN7TERJSKU5MSPqZVx1XSSAAAOw==',
@@ -118,23 +120,12 @@ class rs{
 
 	public function checkDBUser($data){
 		global $db;
-		$query = $db->query("SELECT * FROM `".$this->version."` WHERE `player_name` ='".$this->username."'") or die ($db->error);
+		$query = $db->query("SELECT `last_updated` FROM `".$this->version."` WHERE `player_name` ='".$this->username."'") or die ($db->error);
 		if($query->num_rows != 0){
 			$out = $this->queryDBOld();
 			if(isset($_GET['update']) && $_GET['update'] == "1"){
-				$info = $query->fetch_array();
-				/*if(($info['last_updated']+60*60*24*7) > time()){
-					//update 7day info
-				}
-				if(($info['last_updated']+60*60*24*30) > time()){
-					//update 30day info
-				}*/
-				//if(empty($out['password'])){
-					$this->updateInfo($data);
-				//}
-				//else if(isset($_GET['password']) && $_GET['password'] == $out['password']){
-				//	$this->updateInfo($data);
-				//}
+				$lastUpdated = $query->fetch_row();
+				$this->updateInfo($lastUpdated,$data);
 			}
 			return $out;
 		}
@@ -142,9 +133,17 @@ class rs{
 			$this->insertUser($data);
 		}
 	}
-	private function updateInfo($data,$day7=null,$day30=null){
+	private function updateInfo($lastUpdated, $data){
 		global $db;
-		$db->query("UPDATE `".$this->version."` SET `data` ='".$data."', `last_updated` ='".time()."' WHERE player_name = '".$this->username."'") or die ($db->error);
+		$sql = "UPDATE `".$this->version."` SET `data` ='".$data."', ";
+		if(($lastUpdated[0]+60*60*24*7) < time()){
+			$sql .= "`7day` ='".$data."' ";
+		}
+		if(($lastUpdated[0]+60*60*24*30) < time()){
+			$sql .= "`30day` ='".$data."' ";
+		}
+		$sql .= "`last_updated` ='".time()."' WHERE player_name = '".$this->username."'";
+		$db->query($sql) or die ($db->error);
 	}
 
 	private function insertUser($data){
@@ -173,51 +172,42 @@ class rs{
 	private function compare($new, $old){
 		$i = 0;
 		foreach($new as $parsedNew){
-			if($i != ($this->version == "new" ? 41 : 38)){ //cut off straglers
-				$eParsedNew = explode(",", $parsedNew); //[0][1]([2])
-				$eParsedOld = explode(",", $old[$i]); //[0][1]([2])
-				$j = 0;
+			$eParsedNew = explode(",", $parsedNew); //[0][1]([2])
+			$eParsedOld = explode(",", $old[$i]); //[0][1]([2])
+			$j = 0;
 
-				foreach($eParsedNew as $checkDiffernce){
-					$difference = $checkDiffernce - $eParsedOld[$j];
-					if($checkDiffernce == '-1'){//isn't ranked
-						$formatDifference[$i][] = $checkDiffernce;
-					}
-					else if($difference == 0){//no difference
-						$formatDifference[$i][] = number_format(abs($checkDiffernce));
-					}
-					else if($difference > 0){//up
-						if($j == 0)
-							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">&uarr; -'.number_format(abs($difference)).'</font>';
-						else
-							$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&uarr; +'.number_format(abs($difference)).'</font>';
-					}
-					else if($difference < 0){//down
-						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">&darr; +'.number_format(abs($difference)).'</font>';
-					}
-					$j++;
+			foreach($eParsedNew as $checkDiffernce){
+				$difference = $checkDiffernce - $eParsedOld[$j];
+				if($checkDiffernce == '-1'){//isn't ranked
+					$formatDifference[$i][] = $checkDiffernce;
 				}
-
+				else if($difference == 0){//no difference
+					$formatDifference[$i][] = number_format(abs($checkDiffernce));
+				}
+				else if($difference > 0){//up
+					if($j == 0)
+						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">-'.number_format(abs($difference)).'</font>';
+					else
+						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">+'.number_format(abs($difference)).'</font>';
+				}
+				else if($difference < 0){//down
+					$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">+'.number_format(abs($difference)).'</font>';
+				}
+				$j++;
 			}
 			$i++;
 		}
 		return $formatDifference;
 	}
 
-	/* TODO: Redo this whole function, so fucking ugly */
-	public function readyOut($old, $new){
-		$data = $this->compare($old, $new); //compare the info
+	public function outputSkills($old,$new){
+		$data = $this->compare($old, $new);
 		$skills = array_slice($data, 0, ($this->version == "old" ? 24 : 26), true);
-		$minigames = ($this->version == "old" ? array() : array_slice($data, 26, 15, true));
 		$i = 0;
-		$j = 0;
-
-		/* I hate myself for doing it this way... but I couldn't figure out a way to get the ending </table> */
-
 		$out = '<table><tr><th></th><th>Skills</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
 
 		foreach($skills as $parsed){
-			if($parsed[0] == '-1'){ //isn't ranked in the skill
+			if($parsed[0] == '-1'){
 				$out .= '<tr><td align="center"><img src="'.$this->skillImageLinks[$i].'"/></td><td>'.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
 				$i++;
 				continue;
@@ -226,18 +216,26 @@ class rs{
 			$i++;
 		}
 
-		$out .= '</table><hr align="left" style="width: 20%;"/><table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
-		
+		$out .= '</table>';
+		return $out;
+	}
+
+	public function outputMiniGames($old,$new){
+		$data = $this->compare($old, $new);
+		$minigames = ($this->version == "old" ? array() : array_slice($data, 26, 15, true));
+		$i = 0;
+		$out = '<table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
+
 		foreach ($minigames as $parsed){
-			if($parsed[0] == '-1'){ //isn't ranked in the skill
-				$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$j] : $this->miniImagesLinksNew[$j]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$j] : $this->miniNamesNew[$j]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
-				$j++;
+			if($parsed[0] == '-1'){
+				$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$i] : $this->miniImagesLinksNew[$i]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$i] : $this->miniNamesNew[$i]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
+				$i++;
 				continue;
 			}
-			$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$j] : $this->miniImagesLinksNew[$j]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$j] : $this->miniNamesNew[$j]).'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
-			$j++;
+			$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$i] : $this->miniImagesLinksNew[$i]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$i] : $this->miniNamesNew[$i]).'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
+			$i++;
 		}
-		
+
 		$out .= '</table>';
 		return $out;
 	}
@@ -248,14 +246,13 @@ $user_info = $rs->queryHiScores(); //grab hs info from RuneScape
 if($user_info){ //returned 200 - valid user
 	$old_info = $rs->checkDBUser($user_info);
 	if(empty($old_info)){ //user isn't in the db so he doesn't have any old info, so lets set that
-		$old_info['player_name'] = $rs->username;
-		$old_info['data'] = $user_info;
-		$old_info['last_updated'] = time();
+		$old_info = array('player_name' => $rs->username, 'data' => $user_info, '7day' => $user_info, '30day' => $user_info, 'last_updated' => time());
 	}
 	//explode old and new and compare
 	$user_info = explode ("\n", $user_info);
 	$old_data = explode ("\n", $old_info['data']);
-	$output = $rs->readyOut($user_info, $old_data);
+	/*$old_data7 = explode ("\n", $old_info['7day']);  //For future use.
+	$old_data30 = explode ("\n", $old_info['30day']);*/
 	$db->close();
 }
 else{ //something with the curl
@@ -270,7 +267,7 @@ else{ //something with the curl
 		<meta name="description" content="RuneScape HiScore Grabber" />
 		<meta charset="UTF-8" />
 		<style type="text/css">
-			html { background-color: #000;color: #777;font-family: sans-serif; font-size: 1.1em;padding: 1em 2em; }
+			html { background-color: #000;color: #777;font-size: 1.1em;padding: 1em 2em;font-family: Cambria; }
 			div { float: right;text-align: right; }
 			font{ font-weight:bold; }
 		</style>
@@ -286,6 +283,7 @@ else{ //something with the curl
 				<input type="submit" value="Update Now" />
 			</form>
 		</h5>
-		<?=$output;?>
+		<?=$rs->outputSkills($user_info, $old_data);?>
+		<?=($version == "old" ? '' : $rs->outputMiniGames($user_info, $old_data));?>
 	</body>
 </html>
