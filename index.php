@@ -28,7 +28,7 @@
  *     `7day` text NOT NULL,
  *     `30day` text NOT NULL,
  *  ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
- *
+ * 
  *  CREATE TABLE IF NOT EXISTS `old` (
  *     `player_name` varchar(25) NOT NULL,
  *     `data` text NOT NULL,
@@ -137,12 +137,12 @@ class rs{
 		global $db;
 		$sql = "UPDATE `".$this->version."` SET `data` ='".$data."', ";
 		if(($lastUpdated[0]+60*60*24*7) < time()){
-			$sql .= "`7day` ='".$data."' ";
+			$sql .= "`7day` ='".$data."', ";
 		}
 		if(($lastUpdated[0]+60*60*24*30) < time()){
-			$sql .= "`30day` ='".$data."' ";
+			$sql .= "`30day` ='".$data."', ";
 		}
-		$sql .= "`last_updated` ='".time()."' WHERE player_name = '".$this->username."'";
+		$sql .= "`last_updated` ='".time()."' WHERE `player_name` = '".$this->username."'";
 		$db->query($sql) or die ($db->error);
 	}
 
@@ -263,13 +263,13 @@ else{ //something with the curl
 <html>
 	<head>
 		<title>RSHiScores - #<?=ucfirst($rs->username);?></title>
+		<meta charset="UTF-8" />
 		<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noodp" /> <!-- I fucking hate robots... -->
 		<meta name="description" content="RuneScape HiScore Grabber" />
-		<meta charset="UTF-8" />
 		<style type="text/css">
-			html { background-color: #000;color: #777;font-size: 1.1em;padding: 1em 2em;font-family: Cambria; }
-			div { float: right;text-align: right; }
-			font{ font-weight:bold; }
+			html,body { background-color: #000 !important;color: #777 !important;font-size: 1.1em !important;padding: 1em 2em !important;font-family: Cambria !important; }
+			div { float: right;text-align: right !important; }
+			font{ font-weight:bold !important; }
 		</style>
 	</head>
 	<body>
