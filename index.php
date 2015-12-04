@@ -61,8 +61,8 @@ class rs{
 	public $username = '';
 	private $skillNamesOld = array('Overall','Attack','Defence','Strength','Hitpoints','Ranged','Prayer','Magic','Cooking','Woodcutting','Fletching','Fishing','Firemaking','Crafting','Smithing','Mining','Herblore','Agility','Thieving','Slayer','Farming','Runecraft','Hunter','Construction');
 	private $skillNamesNew = array('Overall','Attack','Defence','Strength','Constitution','Ranged','Prayer','Magic','Cooking','Woodcutting','Fletching','Fishing','Firemaking','Crafting','Smithing','Mining','Herblore','Agility','Thieving','Slayer','Farming','Runecraft','Hunter','Construction','Summoning','Dungeoneering','Divination');
-	private $miniNamesOld = array();
-	private $miniNamesNew = array('Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix','GG: Athletics','GG: Resource Race','WE1: Saradomin Team Contribution', 'WE1: Zamorak Team Contribution');
+	private $miniNamesOld = array('Clues', 'Bounty Hunters', 'Bounty Hunter Rogues');
+	private $miniNamesNew = array('Bounty Hunters','Bounty Hunter Rogues','Dominion Tower','The Crucible','Castle Wars Games','B.A Attackers','B.A Defenders','B.A Collectors','B.A Healers','Duel Tournament','Mobilising Armies','Conquest','Fist of Guthix');
 
 	private $skillImageLinks = array( /* doesn't need 2 variables because skill array doesn't change, but OSRS cuts 2 off of the end of this */
 		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAitAP8JHEiwoEGBAhImPDhQACRIni4JYPhPgKeLlyRSFIAJU0SNBRUKsGRJUaVKEwkKuHcP38iSlRylRIivZj0BmzYlciRT5bt3COjh1OlI0syKP4MKePSokySjKuPFM1FiaVNJmkRWlEpVACVKjDRlBQLkR0J79kys8Ao264+3Q86mXTtp0qdIAoQI+RFXgAYNLNY2asQpkwAiRIL0LVGChQt/gwsLKFIkiA8BAQEAOw==',
@@ -107,14 +107,14 @@ class rs{
 		'data:image/gif;base64,R0lGODlhEQATAMQaAL3Y6GmFimpAQaGhob7W577Y6SwZBhwQBbvV5n95gb7X52mGirzP5r7a6/Lz822DinCGjkNDQ/b09G9iaUMmC2A5E2yDi0JCQv///wAAAP///wAAAAAAAAAAAAAAAAAAACH5BAEAABoALAAAAAARABMAAAWOoCZqWTaK5Tlml3my7nphMYq1MnaX/LzbmAZmYKAYBhiEzsTCECwTDGWKmQQKu4wOYIFSKpSJJaCkabldQWUtGFsAZmfXoma7sSVdoTtZVyYPC3BmM09RfhIJEHA4WhgMQ18UAw4KSyg+LQcVBxkROjiYNCQUTD8vjaUkoSopGaopKq2qsrUZBjW1K7EqIQA7',
 		'data:image/gif;base64,R0lGODlhEAAQAKIHAP/xWc6/EnOJ+S1CrUBf/OXYAQ8tx////yH5BAEAAAcALAAAAAAQABAAAANMeLrcbDDKZoS9d5gnACAeCGgcUBDFWYzbUqUwTLpCEKfBrFSEDQcE3YGHghGCrZ3gGDsKiT9ncrjsBa5SzvGKRT4G4LB4OpSYHWhHAgA7',
 		'data:image/gif;base64,R0lGODlhEAAQANU2AAAAAP7+/vr6+ubm5tjY2P///ykpKf39/fb29hMTE87Ozpubm/v7+/f397e3t6CgoN7e3qmpqefn5/Pz81VVVYiIiJWVlSUlJZeXl3JycsjIyM/PzwcHBwYGBmJiYvj4+KWlpVhYWAoKCp2dndLS0u3t7ePj4y4uLk9PT6SkpAEBAVNTU5mZmQQEBOvr62traywsLLW1tWpqavHx8VJSUqampgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAADYALAAAAAAQABAAAAZuQJtwSCwaj8ikcmkDOJ/QIqCTUrwArZECcwIMARwSAjEAAS4C0wLmbVYKgXigBvA0XLE2YFMoACwCHzQAAiUEegkHDCsiEAdxAhIPegAZMxoqBg4DEwQEBm1NCREDMgAhFAMsKKFCUK+tTLKzSEEAOw==',
-		'data:image/gif;base64,R0lGODlhEAAQALMAAAAAAP///wEGBzHE40Xv2eLi4sjIyICAgP///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAgALAAAAAAQABAAAAReEMlBh7z0ogE6sFMHckdpfBtQfqR5EgMBFAerHoZRAEQ/7xRVrrDr+VicYdFjzHCYvxdsYpQRczUQ1VrA1qYb48zLAz99hpWvIiwzZaegqRyDHwSWJ3ITRE0qWnwgEQA7',
-		'data:image/png;base64,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',
-		'data:image/png;base64,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',
-		'data:image/gif;base64,R0lGODlhEwATAIQVAB8AAD4AAE4AAGIAACAaAHoAAJkAACMjIzMpAE5OTmJiYpt8AIGBgbWRAJmZmcyjANarAK2trb29vf/MAMzMzP///////////////////////////////////////////yH5BAEKAB8ALAAAAAATABMAAAVy4CeOZPkdqKmeh5Mca9m6ChyLh0Tbd04litrt5IgkIg7eiEAgtRKMpIkwmTSJQOHUitspSVQEancLO8jlKgKhHVIhbNh1BRggGo01YTEvEQwCAQR4C4V9IgAAEwgDAB9MkCoABhMPhzGTBY5DI4mJnCMhADs=',
-		'data:image/gif;base64,R0lGODlhEwATAIQVAB8AAD4AAE4AAGIAACAaAHoAAJkAACMjIzMpAE5OTmJiYpt8AIGBgbWRAJmZmcyjANarAK2trb29vf/MAMzMzP///////////////////////////////////////////yH5BAEKAB8ALAAAAAATABMAAAVy4CeOZPkdqKmeh5Mca9m6ChyLh0Tbd04litrt5IgkIg7eiEAgtRKMpIkwmTSJQOHUitspSVQEancLO8jlKgKhHVIhbNh1BRggGo01YTEvEQwCAQR4C4V9IgAAEwgDAB9MkCoABhMPhzGTBY5DI4mJnCMhADs='
+		'data:image/gif;base64,R0lGODlhEAAQALMAAAAAAP///wEGBzHE40Xv2eLi4sjIyICAgP///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAgALAAAAAAQABAAAAReEMlBh7z0ogE6sFMHckdpfBtQfqR5EgMBFAerHoZRAEQ/7xRVrrDr+VicYdFjzHCYvxdsYpQRczUQ1VrA1qYb48zLAz99hpWvIiwzZaegqRyDHwSWJ3ITRE0qWnwgEQA7'
 	);
 
-	private $miniImagesLinksOld = array();
+	private $miniImagesLinksOld = array(
+		'data:image/gif;base64,R0lGODlhEAAQAPcAADAgIAAAAVRGLGlVL2dVNm1aOXBdOnNfO3ZhPXhjPntlP3ZmTH5oQnhoTXtrTn1tUJZ3Pph5P4BrQ4NtRIZvRoBvUohxR4t0SI52SYNyU4V0VYd2Vop3WIx5Wo97W5F3S5N5TZV7Tpx7QZ5+QZh+T5F9XZqAUJ2CUqGAQqSCQ6aERKmHRquIR66KSKKGVLGMSbOPSQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAAALAAAAAAQABAAAAiPAAEIFBggwMCDCAEEIDFiRMKEAT6sMPjwYMQWFCsKxEBiRYcNFAsiDACChQQPHDZsSDHCwoWDGECs8PBRJQoMFD6EBIFCQkqbIHBSPBCCJQcNGTKguPmSYIEVIxQgffAABYimAxMkYIC0ggMHNy1ADKChwoMGIq5qVOgAgYgQGSsGSIAA7tqBCAzEXbsXQEAAOw==',
+		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAjAAP8JHEiwoMF/AAAgVHhQIAA5awBICcPwIAAzY9KooWgRQBkzZtSIEYMkIUEAcVJWMaOkTBwuT5owBADHi0ozPMpAyZJlyRKFAKKAgdIlDpsTVrI02XJEpkMqX9S4mdMPSxYwXJjMrDLFyhcnPHrtOJOGzJsuCcFMQdMjn75++uDVsJGjzZOEU6a8McJvESh4+z7lSOIT75uEdQQBSATAEKCEWhIeRsgH0SBFgQ49XohwIIBBCRtXrOiwEFBCpAMCADs=',
+		'data:image/gif;base64,R0lGODlhEAAQAIcAAAAAAP///wgICNEYGnYPEXYQEZcVGHsSE8dUVaYXG4QTGIQTF3YRFWoPElQMD00LDYoUGIMTF3oSFn8TF3IRFGMPElAMD08MDm8RFFsOEZopLGpAQcR3eqGFhksLDkQKDTcIC0gLDkAKDUQLDlQOEpQkKsBJT/zr7NEaKKUYJSsHCogdJbU6RFE1OHwWIndoauhMYtElQ+QxUNOPn8IhS6mdoYd+grujrm9iaV1YW8m0yZSPlMjEzHVyeREXQUZSpi4/nzA/kzE1TBojTygtRCQsP0JHURgfKz5KXSsxO4CMnR8oNCgyQCo0QUlWaCs2RDRBUSw3RD5MXUBOX0dWaUlYa11rfbzP5nJ7hiY0RB8qNh8oMi05RzdFVTZEU0dYazE9Skpbbk1ecVxvhTtHVVRleG2DmyY2RyQyQD5OX0NUZU5hdHWFlhgjLS9CUyUxPDlJWD5OXWuCmIuapr7W50VTXL7a677Y6b3X6LvV5r3Y6HaDikJMUGyDi6S5wWmFii03OF1pY3SDe32Ngz1FQHKAd0FKREdQSnuKgISXiY6ikqKtpG+EchpZISJnKzN5PHCpdw9JFBtcIiJjKCpvMS1yM0aPTUSHS16hZQo9DhVSGj2FQ1pxW3mPeqi6qWl1aMPFvv/3cf/eIf/nWP/oaP/XBP/aKP/dO//pef/pif/aTvm4Av/IJd+2RP/VV//FOee1O/+1CP+2GP+8J9moOP/JTP/LXP/QY//WfbqTQcabRuCxVf/NZf/+/P+hAP+oFP/Nfv/Ujf+2SPSOBt6BC9d/FP+nN//Dd//FfM9vAJNNAP+pR7pkE/+LIP+2df+gVaFDAMlPAKM+AOhlFc5dFZNSKdpTD9dZFfV7PB0QCsNMGRgHAXgqDNFbL29OQkgUBOBQHug2AM82DSsSC7tWOKNONVgUAzkVDGMVBO5QLNg+IJ0sF2wOAKU9M+ZjV7JDPN3JyKc3M7BYVFAMDJ4nJ6ErKqEuLsNFRM5eXsi0tO7a2pyUlJaOjv/+/gEBAf///yH5BAMAAP8ALAAAAAAQABAAAAi7AP8JHEiwoMF/AAAgVHhQIAAaEABgWMDw4MMUGBgoqEgwoQEaNCRAgIAhYUcMKCPQkGEAg4UHHhgCqFAhJQ0eBjKMGAEChEIAFzJkqBnjRIIRHkCoiOlwwgQJJGD0QzHCgYUQMiNQSDAhAo9eO0ZgaCCiQsIMFEQMyKevnz54NWwYWJqQQloC/BaBgrfvU44HPet+SHhAEIBEAAzNS+gTgIifBRANUhTo0OKFCAcCGJQwcUWOCAv9JMQxIAA7'
+	);
 
 	public function __construct($version, $username){
 		$this->username = $username;
@@ -185,16 +185,16 @@ class rs{
 					$formatDifference[$i][] = $checkDiffernce;
 				}
 				else if($difference == 0){//no difference
-					$formatDifference[$i][] = number_format(abs($checkDiffernce));
+					$formatDifference[$i][] = '<td class="">&plusmn;0</td>';
 				}
-				else if($difference > 0){//up
+				else if($difference > 0){//don't worry this confuses me but it's needed because levels going up is a good thing, this should be notated as down otherwise
 					if($j == 0)
-						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:red;">-'.number_format(abs($difference)).'</font>';
+						$formatDifference[$i][] = '<td class="danger">-'.number_format(abs($difference)).'</td>';
 					else
-						$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">+'.number_format(abs($difference)).'</font>';
+						$formatDifference[$i][] = '<td class="success">+'.number_format(abs($difference)).'</td>';
 				}
-				else if($difference < 0){//down
-					$formatDifference[$i][] = number_format($checkDiffernce).' <font style="color:green;">+'.number_format(abs($difference)).'</font>';
+				else if($difference < 0){//up
+					$formatDifference[$i][] = '<td class="success">+'.number_format(abs($difference)).'</td>';
 				}
 				$j++;
 			}
@@ -202,20 +202,44 @@ class rs{
 		}
 		return $formatDifference;
 	}
+	
+	private function explodeNew($new){
+		$i = 0;
+		foreach($new as $parsedNew){
+			$parsedNew = explode(",", $parsedNew); //[0][1]([2])
+			foreach($parsedNew as $output){
+					$formatDifference[$i][] = $output;
+			}
+			$i++;
+		}
+		return $formatDifference;
+	}
 
 	public function outputSkills($old,$new){
+		$newData = $this->explodeNew($new);
 		$data = $this->compare($old, $new);
 		$skills = array_slice($data, 0, ($this->version == "old" ? 24 : 27), true);
+		$newSkills = array_slice($newData, 0, ($this->version == "old" ? 24 : 27), true);
+		$out = '<table class="table table-hover table-bordered table-condensed"><thead><tr><th>Skills</th><th colspan="2">Rank</th><th colspan="2">Level</th><th colspan="2">EXP</th></tr></thead><tbody>';
 		$i = 0;
-		$out = '<table><tr><th></th><th>Skills</th><th>Rank</th><th>Level</th><th>XP</th></tr>';
 
 		foreach($skills as $parsed){
 			if($parsed[0] == '-1'){
-				$out .= '<tr><td align="center"><img src="'.$this->skillImageLinks[$i].'"/></td><td>'.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
+				$out .= '<tr><th scope="row"><img src="'.$this->skillImageLinks[$i].'"/> '.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</th><td class="info" colspan="7">Not Ranked</td></tr>';
 				$i++;
 				continue;
 			}
-			$out .= '<tr><td><img src="'.$this->skillImageLinks[$i].'"/></td><td>'.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</td><td>'.$parsed[0].'</td><td>'.$parsed[1].'</td><td>'.$parsed[2].'</td></tr>';
+			$out .= '
+					<tr>
+						<th scope="row"><img src="'.$this->skillImageLinks[$i].'"/> '.($this->version == "old" ? $this->skillNamesOld[$i] : $this->skillNamesNew[$i]).'</th>
+						<td>'.number_format($newSkills[($i)][0]).'</td>
+						'.$parsed[0].'
+						<td>'.number_format($newSkills[($i)][1]).'</td>
+						'.$parsed[1].'
+						<td>'.number_format($newSkills[($i)][2]).'</td>
+						'.$parsed[2].'
+					</tr>';
+			
 			$i++;
 		}
 
@@ -224,22 +248,31 @@ class rs{
 	}
 
 	public function outputMiniGames($old,$new){
+		$newData = $this->explodeNew($new);
 		$data = $this->compare($old, $new);
-		$minigames = ($this->version == "old" ? array() : array_slice($data, 27, 17, true));
+		$minigames = ($this->version == "old" ? array_slice($data, 24, 3, true) : array_slice($data, 27, 13, true));
+		$newMiniGames = ($this->version == "old" ? array_slice($newData, 24, 3, true) : array_slice($newData, 27, 13, true));
+		$out = '<table class="table table-hover table-bordered table-condensed"><thead><tr><th>Game</th><th colspan="2">Rank</th><th colspan="2">Score</th></tr></thead><tbody>';
 		$i = 0;
-		$out = '<table><tr><th></th><th colspan="2">Game</th><th colspan="2">Rank</th><th>Score</th></tr>';
 
 		foreach ($minigames as $parsed){
 			if($parsed[0] == '-1'){
-				$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$i] : $this->miniImagesLinksNew[$i]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$i] : $this->miniNamesNew[$i]).'</td><td colspan="3" align="right">Not Ranked</td></tr>';
+				$out .= '<tr><th scope="row"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$i] : $this->miniImagesLinksNew[$i]).'"/> '.($this->version == "old" ? $this->miniNamesOld[$i] : $this->miniNamesNew[$i]).'</th><td class="info" colspan="4">Not Ranked</td></tr>';
 				$i++;
 				continue;
 			}
-			$out .= '<tr><td align="center"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$i] : $this->miniImagesLinksNew[$i]).'"/></td><td colspan="2">'.($this->version == "old" ? $this->miniNamesOld[$i] : $this->miniNamesNew[$i]).'</td><td colspan="2">'.$parsed[0].'</td><td>'.$parsed[1].'</td></tr>';
+			$out .= '
+					<tr>
+						<th scope="row"><img src="'.($this->version == "old" ? $this->miniImagesLinksOld[$i] : $this->miniImagesLinksNew[$i]).'"/> '.($this->version == "old" ? $this->miniNamesOld[$i] : $this->miniNamesNew[$i]).'</th>
+						<td>'.number_format($newMiniGames[($i+($this->version == "old" ? 24 : 27))][0]).'</td>
+						'.$parsed[0].'
+						<td>'.number_format($newMiniGames[($i+($this->version == "old" ? 24 : 27))][1]).'</td>
+						'.$parsed[1].'
+					</tr>';
 			$i++;
 		}
 
-		$out .= '</table>';
+		$out .= '</tbody></table>';
 		return $out;
 	}
 }
@@ -263,44 +296,62 @@ else{ //something with the curl
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 		<title>RSHiScores - #<?=ucfirst($rs->username);?></title>
-		<meta charset="UTF-8" />
-		<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noodp" /> <!-- I fucking hate robots... -->
-		<meta name="description" content="RuneScape HiScore Grabber" />
-		<style type="text/css">
-			html,body { background-color: #000 !important;color: #777 !important;font-size: 1.1em !important;padding: 1em 2em !important;font-family: Cambria !important; }
-			div { float: right;text-align: right !important; }
-			font{ font-weight:bold !important; }
-		</style>
+
+		<!-- Bootstrap -->
+		<!--<link href="css/bootstrap.min.css" rel="stylesheet">-->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+
+		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
 	</head>
-	<body>
-		<h1><?=ucfirst($rs->username);?></h1>
-		<h5>
-			Since: <?=date("j-F-Y g:i:s A", $old_info['last_updated']);?>
-			<form name="input" action="<?=$_SERVER['PHP_SELF'];?>" method="get">
-				<input type="hidden" name="user" value="<?=$rs->username;?>" />
-				<input type="hidden" name="version" value="<?=$version;?>" />
-				<input type="hidden" name="update" value="1" />
-				<input type="submit" value="Update Now" />
-			</form>
-		</h5>
-<?php
-if(isset($_GET['showday']) && in_array($_GET['showday'], array(7, 30))){
-	if($_GET['showday'] == 7){
-		echo $rs->outputSkills($user_info, $old_data7);
-		echo ($version == "old" ? '' : $rs->outputMiniGames($user_info, $old_data7));
-	}
-	else{
-		echo $rs->outputSkills($user_info, $old_data30);
-		echo ($version == "old" ? '' : $rs->outputMiniGames($user_info, $old_data30));
-	}
-}
-else{
-	echo $rs->outputSkills($user_info, $old_data);
-	echo ($version == "old" ? '' : $rs->outputMiniGames($user_info, $old_data));
-}
-?>
+	<body>		
+
+	<div class="container">
+		<div class="col-md-2"></div>
+		<div class="col-md-8">
+			<h1><?=ucfirst($rs->username);?></h1>
+			<h4>
+				<small>Since: <?=date("j-F-Y g:i:s A", $old_info['last_updated']);?>
+				<div class="form-group">
+					<form name="input" action="<?=$_SERVER['PHP_SELF'];?>" method="get" role="form">
+						<input type="hidden" name="user" value="<?=$rs->username;?>" />
+						<input type="hidden" name="version" value="<?=$version;?>" />
+						<input type="hidden" name="update" value="1" />
+						<input class="btn btn-small btn-danger" type="submit" value="Update Now" /> <small class="text-danger">(Clicking this button will update the old data)</small>
+					</form>
+				</div>
+				</small>
+			</h4>
+			<?php
+			if(isset($_GET['showday']) && in_array($_GET['showday'], array(7, 30))){
+				if($_GET['showday'] == 7){
+					echo $rs->outputSkills($user_info, $old_data7);
+					echo $rs->outputMiniGames($user_info, $old_data7);
+				}
+				else{
+					echo $rs->outputSkills($user_info, $old_data30);
+					echo $rs->outputMiniGames($user_info, $old_data30);
+				}
+			}
+			else{
+				echo $rs->outputSkills($user_info, $old_data);
+				echo $rs->outputMiniGames($user_info, $old_data);
+			}
+			?>
+		</div>
+		<div class="col-md-3"></div>
+	</div>
 	</body>
 </html>
