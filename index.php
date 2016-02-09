@@ -194,8 +194,8 @@ class rs{
 					else
 						$formatDifference[$i][] = '<td class="success">+'.number_format(abs($difference)).'</td>';
 				}
-				else if($difference < 0){//up
-					$formatDifference[$i][] = '<td class="success">+'.number_format(abs($difference)).'</td>';
+				else if($difference < 0){//down
+					$formatDifference[$i][] = '<td class="danger">-'.number_format(abs($difference)).'</td>';
 				}
 				$j++;
 			}
